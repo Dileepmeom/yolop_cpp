@@ -1,5 +1,7 @@
 #include "lite/lite.h"
 #include <filesystem>
+#include <chrono>
+#include <vector>
 
 void process_images_in_folder(const std::string &onnx_path, const std::string &input_folder, const std::string &output_folder) {
     // Create the YOLOP model object
@@ -7,6 +9,9 @@ void process_images_in_folder(const std::string &onnx_path, const std::string &i
 
     // Ensure output folder exists
     std::filesystem::create_directories(output_folder);
+
+    // Vector to store inference times
+    std::vector<double> inference_times;
 
     // Loop through all images in the input folder
     for (const auto &entry : std::filesystem::directory_iterator(input_folder)) {
@@ -29,11 +34,18 @@ void process_images_in_folder(const std::string &onnx_path, const std::string &i
             continue;
         }
 
+        // Measure inference time
+        auto start_time = std::chrono::high_resolution_clock::now();
+
         // Perform inference
         lite::types::SegmentContent da_seg_content;
         lite::types::SegmentContent ll_seg_content;
         std::vector<lite::types::Boxf> detected_boxes;
         yolop->detect(img_bgr, detected_boxes, da_seg_content, ll_seg_content);
+
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double elapsed_time_ms = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+        inference_times.push_back(elapsed_time_ms);
 
         // Save results if detection and segmentation succeed
         if (!detected_boxes.empty() && da_seg_content.flag && ll_seg_content.flag) {
@@ -59,6 +71,12 @@ void process_images_in_folder(const std::string &onnx_path, const std::string &i
         } else {
             std::cout << "No detections or segmentation for " << input_path << "\n";
         }
+    }
+
+    // Print inference times
+    std::cout << "\nInference Times (ms):\n";
+    for (size_t i = 0; i < inference_times.size(); ++i) {
+        std::cout << "Image " << i + 1 << ": " << inference_times[i] << " ms\n";
     }
 
     delete yolop;
