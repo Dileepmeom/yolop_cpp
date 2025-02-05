@@ -78,7 +78,7 @@ void process_images_in_folder(const std::string &onnx_path,
 
 int main() {
     // Model and directory setup
-    std::string onnx_path    = "yolop-640-640.onnx"; // Ensure this file is in the same directory as the binary
+    std::string onnx_path    = "yolop-320-320.onnx"; // Ensure this file is in the same directory as the binary
     std::string input_folder = "./Images";           // Folder containing input images
     std::string output_folder = "./Output";          // Folder to save output results
 
