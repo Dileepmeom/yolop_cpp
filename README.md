@@ -1,4 +1,4 @@
-# YOLOP C++ Inference
+# YOLOP C++ Inference for Pi ARM architecture ( Pi Device )
 
 ## Note
 The following steps are applicable only for Ubuntu machines.
